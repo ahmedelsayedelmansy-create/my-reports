@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f3;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: #1a1a18;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      border: 0.5px solid #e0ddd4;
+      padding: 2rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a18;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #888780;
+      margin-top: 4px;
+    }
+
+    .btn-clear {
+      font-size: 13px;
+      color: #888780;
+      background: none;
+      border: 0.5px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-clear:hover { background: #f5f5f3; }
+
+    #reports-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .report-card {
+      background: #fff;
+      border: 0.5px solid #e0ddd4;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background 0.3s, border-color 0.2s;
+    }
+
+    .report-card:hover { border-color: #b4b2a9; }
+
+    .report-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .report-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #f5f5f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+      color: #888780;
+    }
+
+    .report-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a18;
+    }
+
+    .report-sub {
+      font-size: 12px;
+      color: #888780;
+      margin-top: 2px;
+    }
+
+    .report-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .timestamp-badge {
+      background: #eaf3de;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+    }
+
+    .timestamp-badge .t-time {
+      font-size: 11px;
+      color: #3b6d11;
+      font-weight: 500;
+      display: block;
+    }
+
+    .timestamp-badge .t-date {
+      font-size: 11px;
+      color: #3b6d11;
+      display: block;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: #b4b2a9;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-delete:hover { color: #E24B4A; }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid #e0ddd4;
+    }
+
+    .add-row input {
+      flex: 1;
+      font-size: 14px;
+      padding: 8px 12px;
+      border: 0.5px solid #e0ddd4;
+      border-radius: 8px;
+      outline: none;
+      font-family: inherit;
+      color: #1a1a18;
+      background: #fff;
+    }
+
+    .add-row input:focus { border-color: #888780; }
+
+    .add-row input::placeholder { color: #b4b2a9; }
+
+    .btn-add {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 0.5px solid #e0ddd4;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a18;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { background: #f5f5f3; }
+
+    .flash { background: #e6f1fb !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Reports Dashboard</h1>
+        <p>اضغط على أي ريبورت لتسجيل الوقت</p>
+      </div>
+      <button class="btn-clear" onclick="clearAll()">
+        <i class="ti ti-refresh"></i> مسح الكل
+      </button>
+    </div>
+
+    <div id="reports-list"></div>
+
+    <div class="add-row">
+      <input type="text" id="new-report-input" placeholder="اسم الريبورت الجديد..." onkeydown="if(event.key==='Enter') addReport()" />
+      <button class="btn-add" onclick="addReport()">
+        <i class="ti ti-plus"></i> إضافة
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const defaultReports = [
+      { id: 1, name: "Sales Monthly Report" },
+      { id: 2, name: "HR Attendance Report" },
+      { id: 3, name: "Finance Q2 Report" },
+      { id: 4, name: "Marketing Performance" },
+    ];
+
+    let reports = JSON.parse(localStorage.getItem('rpts') || 'null') || defaultReports.map(r => ({ ...r, timestamp: null }));
+    let nextId = Math.max(...reports.map(r => r.id)) + 1;
+
+    function save() { localStorage.setItem('rpts', JSON.stringify(reports)); }
+
+    function formatDT(ts) {
+      if (!ts) return null;
+      const d = new Date(ts);
+      return {
+        date: d.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' }),
+        time: d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+      };
+    }
+
+    function openReport(id) {
+      const r = reports.find(r => r.id === id);
+      if (!r) return;
+      r.timestamp = Date.now();
+      save();
+      render();
+      const el = document.getElementById('card-' + id);
+      if (el) {
+        el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 600);
+      }
+    }
+
+    function deleteReport(id) {
+      reports = reports.filter(r => r.id !== id);
+      save();
+      render();
+    }
+
+    function clearAll() {
+      reports = reports.map(r => ({ ...r, timestamp: null }));
+      save();
+      render();
+    }
+
+    function addReport() {
+      const input = document.getElementById('new-report-input');
+      const name = input.value.trim();
+      if (!name) return;
+      reports.push({ id: nextId++, name, timestamp: null });
+      input.value = '';
+      save();
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById('reports-list');
+      list.innerHTML = '';
+      reports.forEach(r => {
+        const dt = formatDT(r.timestamp);
+        const card = document.createElement('div');
+        card.className = 'report-card';
+        card.id = 'card-' + r.id;
+        card.innerHTML = `
+          <div class="report-left" onclick="openReport(${r.id})">
+            <div class="report-icon"><i class="ti ti-file-description"></i></div>
+            <div>
+              <div class="report-name">${r.name}</div>
+              <div class="report-sub">${dt ? 'آخر فتح: ' + dt.date : 'لم يُفتح بعد'}</div>
+            </div>
+          </div>
+          <div class="report-right">
+            ${dt ? `<div class="timestamp-badge"><span class="t-time">${dt.time}</span><span class="t-date">${dt.date}</span></div>` : ''}
+            <button class="btn-delete" onclick="deleteReport(${r.id})" aria-label="حذف">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
